@@ -8,6 +8,7 @@ from settings import bot_token
 
 intents = discord.Intents.none()
 intents.guilds = True
+intents.members = True
 intents.voice_states = True
 client = discord.Client(intents=intents)
 
@@ -16,6 +17,20 @@ async def on_guild_channel_create(channel):
     if isinstance(channel, discord.VoiceChannel):
         await channel.guild.create_role(name=channel.name + " Owner")
         await channel.guild.create_role(name=channel.name + " Mod")
+
+@client.event
+async def on_voice_state_update(member, before, after):
+    guild = member.guild
+
+    async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.member_update):
+        # make sure this is the right log entry
+        if entry.target.id == member.id:
+            # Check if the action was a mute
+            if entry.before.mute is False and entry.after.mute is True:
+                print(f"{entry.user.id} muted {entry.target.id}")
+            # Check if the action was an unmute
+            if entry.before.mute is True and entry.after.mute is False:
+                print(f"{entry.user.id} unmuted {entry.target.id}")
 
 @client.event
 async def on_voice_state_update_not(member, before, after):
@@ -49,5 +64,4 @@ async def on_voice_state_update_not(member, before, after):
         await member.add_roles(role)
 
 if __name__ == "__main__":
-    gigguild.load_guilds()
     client.run(bot_token)
