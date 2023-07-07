@@ -17,9 +17,14 @@ async def on_guild_channel_create(channel):
     if isinstance(channel, discord.VoiceChannel):
         # Create roles if they do not exist
         if not discord.utils.get(channel.guild.roles, name=channel.name + " Owner"):
-            await channel.guild.create_role(name=channel.name + " Owner")
+            owner_role = await channel.guild.create_role(name=channel.name + " Owner")
+            await channel.set_permissions(owner_role, mute_members=True)
         if not discord.utils.get(channel.guild.roles, name=channel.name + " Mod"):
-            await channel.guild.create_role(name=channel.name + " Mod")
+            mod_role = await channel.guild.create_role(name=channel.name + " Mod")
+            await channel.set_permissions(mod_role, mute_members=True)
+        if not discord.utils.get(channel.guild.roles, name=channel.name + " Banned"):
+            banned_role = await channel.guild.create_role(name=channel.name + " Banned")
+            await channel.set_permissions(banned_role, connect=False)
 
 @client.event
 async def on_voice_state_update(member, before, after):
