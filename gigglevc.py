@@ -15,8 +15,11 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_guild_channel_create(channel):
     if isinstance(channel, discord.VoiceChannel):
-        await channel.guild.create_role(name=channel.name + " Owner")
-        await channel.guild.create_role(name=channel.name + " Mod")
+        # Create roles if they do not exist
+        if not discord.utils.get(channel.guild.roles, name=channel.name + " Owner"):
+            await channel.guild.create_role(name=channel.name + " Owner")
+        if not discord.utils.get(channel.guild.roles, name=channel.name + " Mod"):
+            await channel.guild.create_role(name=channel.name + " Mod")
 
 @client.event
 async def on_voice_state_update(member, before, after):
