@@ -19,6 +19,9 @@ async def on_guild_channel_create(channel):
         if not discord.utils.get(channel.guild.roles, name=channel.name + " Owner"):
             owner_role = await channel.guild.create_role(name=channel.name + " Owner")
             await channel.set_permissions(owner_role, mute_members=True)
+            permissions = discord.Permissions()
+            permissions.update(manage_roles=True)
+            await owner_role.edit(permissions=permissions)
         if not discord.utils.get(channel.guild.roles, name=channel.name + " Mod"):
             mod_role = await channel.guild.create_role(name=channel.name + " Mod")
             await channel.set_permissions(mod_role, mute_members=True)
